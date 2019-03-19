@@ -1,27 +1,31 @@
 <template>
-  <section id="about-page" v-editable="blok">
-    <h1>{{ title }}</h1>
-    <p>{{ content }}</p>
-  </section>
+  <div id="post" v-editable="blok">
+    <div class="post-thumbnail" :style="{backgroundImage: 'url(' + image + ')'}"></div>
+    <section class="post-content">
+      <h1>{{ title }}</h1>
+      <p>{{ content }}</p>
+    </section>
+  </div>
 </template>
 
 <script>
 export default {
   asyncData(context) {
     return context.app.$storyapi
-      .get("cdn/stories/about", {
+      .get("cdn/stories/blog/" + context.params.postId, {
         version: "draft"
       })
       .then(res => {
         return {
           blok: res.data.story.content,
+          image: res.data.story.content.thumbnail,
           title: res.data.story.content.title,
           content: res.data.story.content.content
         };
       });
   },
   mounted() {
-    // this.$storybridge.init();
+    // this.$storyblok.init();
     this.$storybridge.on("change", () => {
       location.reload(true);
     });
@@ -30,15 +34,20 @@ export default {
 </script>
 
 <style>
-#about-page {
-  padding-top: 20px;
+.post-thumbnail {
+  width: 100%;
+  height: 300px;
+  background-size: cover;
+  background-position: center;
+}
+
+.post-content {
   width: 80%;
   max-width: 500px;
   margin: auto;
 }
 
-#about-page p {
+.post-content p {
   white-space: pre-line;
 }
 </style>
-
