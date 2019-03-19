@@ -1,4 +1,5 @@
 import pkg from './package';
+import axios from 'axios';
 
 export default {
   mode: 'universal',
@@ -43,9 +44,29 @@ export default {
   modules: [
     [
       'storyblok-nuxt',
-      { accessToken: '535eKppMa800anEHcJYuaAtt', cacheProvider: 'memory' }
+      {
+        accessToken:
+          process.env.Node_ENV == 'production'
+            ? 'XOGiaQ51bFWh42bsIBX7iQtt'
+            : '535eKppMa800anEHcJYuaAtt',
+        cacheProvider: 'memory'
+      }
     ]
   ],
+
+  generate: {
+    routes: function() {
+      return axios
+        .get(
+          'https://api.storyblok.com/v1/cdn/stories?&version=published&token=XOGiaQ51bFWh42bsIBX7iQtt&starts_with=blog&cv=' +
+            Math.floor(Date.now() / 1e3)
+        )
+        .then(res => {
+          const blogPosts = res.data.stories.map(bp => bp.full_slug);
+          return ['/', '/blog', '/about', ...blogPosts];
+        });
+    }
+  },
 
   /*
    ** Build configuration
